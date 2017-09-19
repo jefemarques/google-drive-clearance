@@ -79,26 +79,28 @@ $service = new Google_Service_Drive($client);
 
 $optParams = [
     'q'      => "'me' in owners and trashed = false",
-    'fields' => "nextPageToken, nextLink, items(id, title)",
+    'fields' => "files",
 ];
 
 while (true) {
     $results = $service->files->listFiles($optParams);
-
-    if (count($results->getItems()) === 0) {
+    //var_dump($results);
+    if (count($results->getFiles()) === 0) {
         echo "No files found.\n";
         break;
     }
 
     echo "Delete files in a batch:\n";
-    foreach ($results->getItems() as $file) {
+    foreach ($results->getFiles() as $file) {
         /** @var $file Google_Service_Drive_DriveFile */
-        printf("Deleting %s (%s)...", $file->getTitle(), $file->getId());
-
+        printf("Deleting %s (%s)...", $file->getName(), $file->getId());
+        //var_dump($file);
         try {
             $response = $service->files->delete($file->getId());
             if ($response === null) {
                 printf("...Deleted.\n");
+            } else {
+                printf("... NON Deleted.\n");
             }
         } catch (Google_Service_Exception $e) {
             printf("...Failed: {$e->getMessage()}\n");
